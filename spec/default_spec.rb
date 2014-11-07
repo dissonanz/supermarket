@@ -48,13 +48,13 @@ describe 'supermarket::default' do
 
   context 'the .env.production template' do
     it 'notifies unicorn to restart' do
-      resource = chef_run.template('/srv/supermarket/shared/.env.production')
+      resource = chef_run.file('/srv/supermarket/shared/.env.production')
 
       expect(resource).to notify('runit_service[unicorn]').to(:usr2)
     end
 
     it 'notifies sidekiq to restart' do
-      resource = chef_run.template('/srv/supermarket/shared/.env.production')
+      resource = chef_run.file('/srv/supermarket/shared/.env.production')
 
       expect(resource).to notify('runit_service[sidekiq]').to(:restart)
     end
@@ -64,11 +64,10 @@ describe 'supermarket::default' do
         it 'uses the value from the data bag' do
           ChefSpec::Server.create_data_bag('apps',
                                            'supermarket' => {
-                                             'chef_oauth2' => {
-                                               'verify_ssl' => 'false'
+                                             'env' => {
+                                               'chef_oauth2_verify_ssl' => false
                                              }
-                                           }
-          )
+                                           })
 
           expect(chef_run)
             .to render_file('/srv/supermarket/shared/.env.production')
